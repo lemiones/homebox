@@ -24,14 +24,15 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.Default()
+	g := r.Group("/homebox")
 
 	if isProd {
 		//r.LoadHTMLGlob("./static/*.html")
 		//r.Static("/static", "./static")
-		r.StaticFS("/static", AssetFile())
+		r.StaticFS("/homebox/static", AssetFile())
 		html, _ := Asset("index.html")
 
-		r.GET("/", func(ctx *gin.Context) {
+		g.GET("/", func(ctx *gin.Context) {
 			ctx.Header("Content-Type", "text/html")
 			ctx.Stream(func(w io.Writer) bool {
 				w.Write(html)
@@ -44,11 +45,11 @@ func main() {
 		c.Header("Access-Control-Allow-Origin", "*")
 	})
 
-	r.OPTIONS("/upload", func(c *gin.Context) {
+	g.OPTIONS("/upload", func(c *gin.Context) {
 	//	c.Header("Access-Control-Allow-Origin", "*")
 	})
 
-	r.POST("/upload", func(c *gin.Context) {
+	g.POST("/upload", func(c *gin.Context) {
 		//c.Header("Access-Control-Allow-Origin", "*")
 		body := c.Request.Body
 		data := make([]byte, READ_PACK_SIZE)
@@ -76,7 +77,7 @@ func main() {
 		})
 	})
 
-	r.GET("/download", func(c *gin.Context) {
+	g.GET("/download", func(c *gin.Context) {
 		//c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
 		c.Header("Content-Disposition", "attachment; filename=random.dat")
@@ -103,7 +104,7 @@ func main() {
 		})
 	})
 
-	r.GET("/ping", func(c *gin.Context) {
+	g.GET("/ping", func(c *gin.Context) {
 		//c.Header("Access-Control-Allow-Origin", "*")
 		c.Writer.Flush()
 		c.JSON(200, gin.H{
@@ -112,6 +113,6 @@ func main() {
 	})
 
 	fmt.Println("Listened on :3300")
-	
+
 	r.Run(":3300")
 }
